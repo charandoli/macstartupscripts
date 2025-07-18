@@ -78,7 +78,6 @@ CORE_TOOLS=(
   azure-cli
   kubectl
   kubectx
-  docker
   docker-compose
   openjdk@17
   python
@@ -88,7 +87,7 @@ CORE_TOOLS=(
   1password-cli
   nodejs
   mkcert
-  azure-functions-core-tools@4
+  gh
 )
 
 echo "Checking and installing core tools..."
@@ -119,6 +118,21 @@ else
     SKIPPED_INSTALLS+=("Stripe CLI")
 fi
 
+# Azure Functions Core Tools
+if ! brew tap | grep -q "^azure/functions$"; then
+    echo "Tapping azure/functions..."
+    brew tap azure/functions
+else
+    echo "azure/functions already tapped."
+fi
+
+if ! brew list azure-functions-core-tools@4 &>/dev/null; then
+    install_package "azure-functions-core-tools@4" "brew install azure-functions-core-tools@4"
+else
+    echo "Azure Functions Core Tools are already installed. Skipping."
+    SKIPPED_INSTALLS+=("azure-functions-core-tools@4")
+fi
+
 
 # --- Homebrew Casks ---
 CASK_APPS=(
@@ -128,6 +142,7 @@ CASK_APPS=(
   github-desktop
   git-fork
   microsoft-azure-storage-explorer
+  github-copilot-for-xcode
 )
 
 echo "Checking and installing applications (Casks)..."
@@ -139,6 +154,36 @@ for app in "${CASK_APPS[@]}"; do
         SKIPPED_INSTALLS+=("$app (cask)")
     fi
 done
+
+# --- GitHub CLI Extensions ---
+echo "Checking and installing GitHub CLI extensions..."
+if command -v gh &>/dev/null; then
+    # Check if user is logged in to GitHub CLI
+    if ! gh auth status &>/dev/null; then
+        echo "You are not logged into the GitHub CLI. Please log in."
+        gh auth login
+        if [ $? -eq 0 ]; then
+            SUCCESS_CONFIGS+=("GitHub CLI Auth")
+        else
+            FAILED_CONFIGS+=("GitHub CLI Auth")
+            echo "WARNING: GitHub CLI login failed. This might affect dependent installations."
+        fi
+    else
+        echo "Already logged into GitHub CLI. Skipping login."
+        SKIPPED_CONFIGS+=("GitHub CLI Auth")
+    fi
+
+    # Now, check for the extension
+    if ! gh extension list | grep -q "github/gh-copilot"; then
+        install_package "gh-copilot (gh extension)" "gh extension install github/gh-copilot"
+    else
+        echo "gh-copilot extension is already installed. Skipping."
+        SKIPPED_INSTALLS+=("gh-copilot (gh extension)")
+    fi
+else
+    echo "WARNING: GitHub CLI (gh) not found. Skipping installation of gh-copilot extension."
+    SKIPPED_INSTALLS+=("gh-copilot (gh extension) - gh not found")
+fi
 
 
 # --- Java 17 Configuration ---
@@ -188,27 +233,26 @@ else
   SKIPPED_CONFIGS+=("Oh My Zsh")
 fi
 
-# --- Python Data Science Packages ---
-PYTHON_PACKAGES=(
-  numpy
-  pandas
-  scipy
-  matplotlib
-  seaborn
-  scikit-learn
-  jupyterlab
-)
-
-echo "Checking and installing Python data science packages..."
-pip3 install --upgrade pip
-for package in "${PYTHON_PACKAGES[@]}"; do
-  if ! pip3 show "$package" &>/dev/null; then
-    install_package "$package (pip)" "pip3 install $package"
-  else
-    echo "$package is already installed. Skipping."
-    SKIPPED_INSTALLS+=("$package (pip)")
-  fi
-done
+# --- Python Data Science Packages (Commented Out) ---
+# echo "Checking and installing Python data science packages..."
+# PYTHON_PACKAGES=(
+#   numpy
+#   pandas
+#   scipy
+#   matplotlib
+#   seaborn
+#   scikit-learn
+#   jupyterlab
+# )
+# pip3 install --upgrade pip
+# for package in "${PYTHON_PACKAGES[@]}"; do
+#   if ! pip3 show "$package" &>/dev/null; then
+#     install_package "$package (pip)" "pip3 install $package"
+#   else
+#     echo "$package is already installed. Skipping."
+#     SKIPPED_INSTALLS+=("$package (pip)")
+#   fi
+# done
 
 # --- Zsh Plugins ---
 echo "Checking and installing Zsh plugins..."
