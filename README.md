@@ -12,4 +12,9 @@ Oh-my-zsh themes:
   - In the .zshrc file, set the theme to agnoster:
 
         ZSH_THEME="agnoster"
-  - 
+ 
+Use the .zshrc file in this repo
+
+Use the Git Alias file 
+
+
