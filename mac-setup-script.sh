@@ -88,6 +88,8 @@ CORE_TOOLS=(
   mkcert
   gh
   sops
+  nuget
+  helm
 )
 
 echo "Checking and installing core tools..."
@@ -145,6 +147,10 @@ CASK_APPS=(
   microsoft-azure-storage-explorer
   github-copilot-for-xcode
   powershell
+  raycast
+  rectangle
+  postman
+  obsidian
 )
 
 echo "Checking and installing applications (Casks)..."
@@ -156,6 +162,21 @@ for app in "${CASK_APPS[@]}"; do
         SKIPPED_INSTALLS+=("$app (cask)")
     fi
 done
+
+# --- Global NPM Packages ---
+echo "Checking and installing global NPM packages..."
+if command -v npm &>/dev/null; then
+    if ! npm list -g vsts-npm-auth | grep -q 'vsts-npm-auth'; then
+        install_package "vsts-npm-auth (npm)" "npm install -g vsts-npm-auth"
+    else
+        echo "vsts-npm-auth is already installed globally. Skipping."
+        SKIPPED_INSTALLS+=("vsts-npm-auth (npm)")
+    fi
+else
+    echo "WARNING: npm (Node.js) not found. Skipping installation of global npm packages."
+    SKIPPED_INSTALLS+=("vsts-npm-auth (npm) - npm not found")
+fi
+
 
 # --- GitHub CLI Extensions ---
 echo "Checking and installing GitHub CLI extensions..."
