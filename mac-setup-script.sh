@@ -78,7 +78,6 @@ CORE_TOOLS=(
   azure-cli
   kubectl
   kubectx
-  docker-compose
   openjdk@17
   python
   tmux
@@ -88,6 +87,7 @@ CORE_TOOLS=(
   nodejs
   mkcert
   gh
+  sops
 )
 
 echo "Checking and installing core tools..."
@@ -134,7 +134,8 @@ else
 fi
 
 
-# --- Homebrew Casks ---
+# --- Homebrew Casks (GUI Applications) ---
+# Note: 'docker' cask installs Docker Desktop, which includes the docker CLI and docker-compose.
 CASK_APPS=(
   visual-studio-code
   docker
@@ -143,6 +144,7 @@ CASK_APPS=(
   git-fork
   microsoft-azure-storage-explorer
   github-copilot-for-xcode
+  powershell
 )
 
 echo "Checking and installing applications (Casks)..."
