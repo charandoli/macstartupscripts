@@ -73,6 +73,7 @@ brew update
 # --- Core Homebrew Packages ---
 CORE_TOOLS=(
   git
+  git-gui
   wget
   maven
   azure-cli
@@ -90,6 +91,7 @@ CORE_TOOLS=(
   sops
   nuget
   helm
+  kubelogin
 )
 
 echo "Checking and installing core tools..."
